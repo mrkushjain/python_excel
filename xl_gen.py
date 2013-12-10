@@ -1,36 +1,41 @@
-import xlsxwriter
+from openpyxl.reader.excel import load_workbook
+from openpyxl.workbook import Workbook
+from openpyxl.style import Color, Fill
+from openpyxl.cell import Cell
 
-
-workbook = xlsxwriter.Workbook('Marks.xlsx')
-worksheet = workbook.add_worksheet()
+FILE_NAME = 'template.xlsx'
+workbook = load_workbook(FILE_NAME)
+worksheet =  workbook.get_sheet_by_name("Sheet1")
 
 result = (
     ['Ram', 96],
     ['Ravi',   2],
-    ['Kush',  5],
-    ['Shyam',    5],
+    ['Kush',  95],
+    ['Shyam',    95],
 )
 
-row = 0
-col = 0
+row_index = 0
+col_index = 0
 sum = 0
 
-# Iterate over the data and write it out row by row.
 for name, marks in (result):
-    worksheet.write(row, col,     name)
-    worksheet.write(row, col + 1, marks)
+    
+    worksheet.cell(row = row_index, column = col_index).value = name
+    worksheet.cell(row = row_index, column = col_index + 1).value = marks
     sum += marks
-    row += 1
+    row_index += 1
 
 no_of_students = len(result)
 average = float(sum)/no_of_students
 
-background = workbook.add_format()
+background =  Color.DARKRED
 if average > 50:
-	background.set_bg_color('yellow')
-else:
-	background.set_bg_color('red')
-worksheet.write(row, 0, 'Average')
-worksheet.write(row, 1, average,background)
+	background = Color.YELLOW
 
-workbook.close()
+worksheet.cell(row = row_index, column = 0).value = 'Average'
+worksheet.cell(row = row_index, column = 1).value = average
+worksheet.cell(row = row_index, column = 1).style.fill.fill_type = Fill.FILL_SOLID
+worksheet.cell(row = row_index, column = 1).style.fill.start_color.index =  background
+
+
+workbook.save(FILE_NAME)
